@@ -10,21 +10,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func New() {
-
-}
-
-func GetStore() {
-
-}
-
 func GetInMemoryClient() (*mongo.Client, error) {
 	mongoServer, err := memongo.Start("4.0.5")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer mongoServer.Stop()
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoServer.URI()))
+	client, err := mongo.NewClient(
+		options.Client().ApplyURI(mongoServer.URI()))
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -37,4 +30,19 @@ func GetInMemoryClient() (*mongo.Client, error) {
 	}
 	defer client.Disconnect(ctx)
 	return client, nil
+}
+
+func GetClient(uri string) *mongo.Client {
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+	return client
 }

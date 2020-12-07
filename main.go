@@ -1,40 +1,23 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"os"
 
 	"github.com/ademcaglin/authserver/handlers"
+	"github.com/ademcaglin/authserver/models"
+	"github.com/ademcaglin/authserver/stores/mongodb"
 )
 
-/*func printUser(store models.UserStore) {
-	x, _ := store.GetOne(context.TODO(), "ademcaglin")
-	fmt.Println(x)
-}
 func main() {
-	mongoServer, err := memongo.Start("4.0.5")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer mongoServer.Stop()
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoServer.URI()))
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
-	store := mongodb.NewMongoUserStore(client)
-	store.Save(context.TODO(), "ademcaglin", "Adem Çağlın")
-	printUser(store)
-}*/
-
-func main() {
+	client := mongodb.GetClient(os.Getenv("MONGO_CONSTR"))
+	userStore := mongodb.NewMongoUserStore(client)
+	store := models.Store{Users: userStore}
+	defer client.Disconnect(context.Background())
 	fs := http.FileServer(http.Dir("./templates/assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	http.HandleFunc("/", handlers.HomeHandler)
-	//http.HandleFunc("/authorize", handlers.AuthorizeHandler(store))
+	http.HandleFunc("/authorize", handlers.AuthorizeHandler(&store))
 	http.ListenAndServe(":8000", nil)
 }

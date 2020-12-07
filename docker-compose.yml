@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  authserver:
+    container_name: authserver
+    build:
+      context: .
+    environment:
+      - MONGO_CONSTR=mongodb://authserver-db
+    ports:
+      - 3003:8000
+    restart: unless-stopped
+    networks: 
+      - authserver
+  authserver-db:
+    image: mongo
+    container_name: authserver-db
+    volumes:
+      - authserver-db-data:/data/db
+    ports:
+      - "27017:27017"
+    networks: 
+      - authserver
+
+volumes:
+  authserver-db-data:
+
+networks:
+  authserver:

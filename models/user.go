@@ -32,11 +32,11 @@ type UserKey struct {
 }
 
 type User struct {
-	Username    string
-	Name        string
-	CreatedAt   time.Time
-	Credentials []UserCredential
-	IsActive    bool
+	Username    string           `json:"username"`
+	Name        string           `json:"name"`
+	CreatedAt   time.Time        `json:"created_at"`
+	Credentials []UserCredential `json:"credentials"`
+	IsActive    bool             `json:"is_active"`
 }
 
 type UserStore interface {

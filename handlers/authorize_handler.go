@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/ademcaglin/authserver/models"
@@ -12,13 +14,17 @@ func AuthorizeHandler(store *models.Store) func(http.ResponseWriter, *http.Reque
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
-			get(store)
+			get(store, w, r)
 		}
 	}
 }
 
-func get(store *models.Store) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		store.Users.GetOne(nil, "")
+func get(store *models.Store, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	user, err := store.Users.GetOne(context.Background(), "ademcaglin")
+	if err == nil {
+		json.NewEncoder(w).Encode(user)
+	} else {
+		json.NewEncoder(w).Encode("adem")
 	}
 }
